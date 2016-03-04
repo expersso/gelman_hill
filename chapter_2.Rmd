@@ -77,7 +77,11 @@ hist(diffs, main = "Average difference in height between
 men and women (1000 simulations)")
 
 cat("Mean simulated height differences: ", mean(diffs))
+cat("Analytical height differences: ", mu_men  - mu_women)
+
 cat("Mean simulated standard deviation in height differences: ", sd(diffs))
+cat("Analytical standard deviation in height differences: ", 
+    sqrt(sigma_men^2 / 100 + sigma_women^2 / 100))
 ```
 
 #### Question 5
@@ -99,7 +103,10 @@ plot(heights, xlab = "Husband height", ylab = "Wife height",
 couple_heights <- rowMeans(heights)
 hist(couple_heights, main = "Distribution of average couple heights")
 
-
 cat("Mean simulated average couple heights: ", mean(couple_heights))
+cat("Analytical mean of average couple heights: ", mean(c(mu_men, mu_women)))
+
 cat("Mean simulated standard deviation average couple heights: ", sd(couple_heights))
+cat("Analytical standard deviation of average couple heights: ", 
+    sqrt(sigma_men ^ 2 + sigma_women ^ 2 + r * sigma_men * sigma_women))
 ```
