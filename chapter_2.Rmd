@@ -1,0 +1,105 @@
+---
+title: "Chapter 2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 4, fig.height = 4)
+```
+
+```{r}
+# Download data
+if(!dir.exists("ARM_Data")) {
+  download.file("http://www.stat.columbia.edu/~gelman/arm/examples/ARM_Data.zip",
+                "ARM_Data.zip", mode = "wb")
+  unzip("ARM_Data.zip")
+}
+```
+
+#### Question 1
+
+$$ z = 100 + 15 \times \frac{x - \mu_{x}}{\sigma_{x}} $$
+
+#### Question 2
+```{r}
+
+girls <- c(.4777, .4875, .4859, .4754, .4874, .4864, .4813, .4787, .4895, .4797, 
+           .4876, .4859, .4857, .4907, .5010, .4903, .4860, .4911, .4871, .4725, 
+           .4822, .4870, .4823, .4973)
+
+diff_sd <- function() {
+  sim_girls <- rbinom(100, 10000, sd(girls)) / 10000
+  sd(girls) - sd(sim_girls)
+}
+
+sim_diffs <- replicate(1000, diff_sd())
+hist(sim_diffs, breaks = 50, 
+     main = "Differences in simulated and\nactual standard deviations")
+```
+
+#### Question 3
+```{r}
+s <- 20 # Number of draws
+n <- 1000 # Number of simulations
+
+# Draw s samples from uniform distribution, sum them up, repeat n times
+x <- replicate(n, sum(runif(s)))
+
+hist(x, xlim = c(0, s), breaks = s, freq = FALSE, 
+     main = "Mean of 20 draws from uniform\n distribution (1000 simulations)")
+
+# Theoretical mean and standard deviation
+mu <- s / 2
+sigma <- (s / sqrt(12)) / sqrt(s)
+
+# Plot normal density function
+grid <- seq(0, s, 0.1)
+lines(grid, dnorm(grid, mu, sigma))
+```
+
+#### Question 4
+```{r}
+mu_men <- 69.1
+mu_women <- 63.7
+sigma_men <- 2.9
+sigma_women <- 2.7
+  
+height_diff <- function(mu_men, mu_women, sigma_men, sigma_women) {
+  
+  height_men <- rnorm(100, mu_men, sigma_men)
+  height_women <- rnorm(100, mu_women, sigma_women)
+  
+  mean(height_men) - mean(height_women)
+}
+
+diffs <- replicate(1000, height_diff(mu_men, mu_women, sigma_men, sigma_women))
+hist(diffs, main = "Average difference in height between
+men and women (1000 simulations)")
+
+cat("Mean simulated height differences: ", mean(diffs))
+cat("Mean simulated standard deviation in height differences: ", sd(diffs))
+```
+
+#### Question 5
+
+```{r}
+r <- 0.3 # Correlation between husband and wife height
+covar <- r * sigma_men * sigma_women # Covariance of heights
+mu <- matrix(c(mu_men, mu_women), 2) # Matrix (actually vector) of means
+
+# Variance/covariance matrix
+sigma <- matrix(c(sigma_men^2, covar, covar, sigma_women^2), 2, byrow = TRUE)
+
+# Draw 1000 samples from multivariate normal distribution
+heights <- mvtnorm::rmvnorm(1000, mu, sigma)
+
+plot(heights, xlab = "Husband height", ylab = "Wife height",
+     main = "Relationship between heights\nof husband and wife")
+
+couple_heights <- rowMeans(heights)
+hist(couple_heights, main = "Distribution of average couple heights")
+
+
+cat("Mean simulated average couple heights: ", mean(couple_heights))
+cat("Mean simulated standard deviation average couple heights: ", sd(couple_heights))
+```
